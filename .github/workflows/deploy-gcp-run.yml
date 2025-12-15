@@ -1,0 +1,47 @@
+
+name: Deploy to Google Cloud Run (optional)
+
+on:
+  push:
+    branches: [ main, master ]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy-cloud-run:
+    if: ${{ secrets.GCP_SA_KEY != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Configure Docker auth for ghcr
+        run: |
+          echo "Logging in to GHCR..."
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Pull image from GHCR
+        run: |
+          docker pull ghcr.io/${{ github.repository_owner }}/deepseek:latest
+
+      - name: Tag and push to GCR (optional)
+        run: |
+          IMAGE=gcr.io/${{ secrets.GCP_PROJECT_ID }}/deepseek:latest
+          docker tag ghcr.io/${{ github.repository_owner }}/deepseek:latest $IMAGE
+          docker push $IMAGE
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy deepseek-service \
+            --image=gcr.io/${{ secrets.GCP_PROJECT_ID }}/deepseek:latest \
+            --platform=managed \
+            --region=${{ secrets.GCP_REGION }} \
+            --allow-unauthenticated

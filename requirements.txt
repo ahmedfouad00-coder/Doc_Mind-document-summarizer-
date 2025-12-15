@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+python-dotenv
+numpy
+evaluate
+langchain
+langchain-community
+langchain-core
+langchain-groq
+langchain-ollama
