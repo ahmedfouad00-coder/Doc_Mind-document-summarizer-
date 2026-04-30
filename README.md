@@ -1,8 +1,8 @@
 # DeepSeek FastAPI Backend – LLM RAG System
 
-## 🎥 Live Demo
+##  Live Demo
 
-👉 https://youtu.be/V3Oh6Wpr4sU
+ https://youtu.be/V3Oh6Wpr4sU
 
 This video demonstrates the system in action, including:
 - Uploading documents
